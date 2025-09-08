@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="248.0" prefWidth="379.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.p1aloritmos.SolitaireController">
+
+   <!-- Barra superior: DrawPile, WastePile y Foundations -->
+   <top>
+      <HBox alignment="CENTER_LEFT" spacing="16" style="-fx-padding: 10;">
+         <!-- Draw pile -->
+         <StackPane fx:id="drawPilePane" maxHeight="Infinity" maxWidth="Infinity" style="-fx-border-color: #333; -fx-border-radius: 10; -fx-background-radius: 10;" />
+
+         <!-- Waste pile -->
+         <StackPane fx:id="wastePilePane" maxHeight="Infinity" maxWidth="Infinity" style="-fx-border-color: #333; -fx-border-radius: 10; -fx-background-radius: 10;" />
+
+         <Region HBox.hgrow="ALWAYS" />
+
+         <!-- Foundations -->
+         <HBox spacing="12">
+            <StackPane fx:id="foundation0" maxHeight="Infinity" maxWidth="Infinity" />
+            <StackPane fx:id="foundation1" maxHeight="Infinity" maxWidth="Infinity" />
+            <StackPane fx:id="foundation2" maxHeight="Infinity" maxWidth="Infinity" />
+            <StackPane fx:id="foundation3" maxHeight="Infinity" maxWidth="Infinity" />
+         </HBox>
+      </HBox>
+   </top>
+
+
+
+   <!-- Centro: controles + Tableau con scroll -->
+   <center>
+      <ScrollPane fitToHeight="true" fitToWidth="true" pannable="true">
+         <VBox alignment="TOP_CENTER" spacing="20" style="-fx-padding: 10;">
+            <!-- Controles -->
+            <HBox alignment="CENTER" spacing="10">
+               <Button onAction="#onNewGame" text="New Game" />
+               <Label fx:id="statusLabel" style="-fx-font-size:14px;" />
+               <Button text="Salir" onAction="#onExit"/> <!-- 🔹 nuevo botón -->
+               <Label style="-fx-font-size:14px;" text="Tiempo:" />
+               <Label fx:id="timerLabel" style="-fx-font-size:14px; -fx-text-fill:blue;" />
+            </HBox>
+
+
+            <!-- Tableau -->
+            <HBox fx:id="tableauRow" alignment="CENTER" spacing="12" VBox.vgrow="ALWAYS">
+               <VBox fx:id="tableau0" style="-fx-padding:8;" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+               <VBox fx:id="tableau1" style="-fx-padding:8;" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+               <VBox fx:id="tableau2" style="-fx-padding:8;" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+               <VBox fx:id="tableau3" style="-fx-padding:8;" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+               <VBox fx:id="tableau4" style="-fx-padding:8;" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+               <VBox fx:id="tableau5" style="-fx-padding:8;" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+               <VBox fx:id="tableau6" style="-fx-padding:8;" HBox.hgrow="ALWAYS" VBox.vgrow="ALWAYS" />
+            </HBox>
+         </VBox>
+      </ScrollPane>
+   </center>
+</BorderPane>
