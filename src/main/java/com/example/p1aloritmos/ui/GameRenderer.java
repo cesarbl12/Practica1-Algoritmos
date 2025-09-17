@@ -1,6 +1,7 @@
 package com.example.p1aloritmos.ui;
 
 import DeckOfCards.CartaInglesa;
+import com.example.p1aloritmos.menu.GameSettings;
 import com.example.p1aloritmos.SolitaireController;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
@@ -178,7 +179,7 @@ public class GameRenderer {
         StackPane root = new StackPane();
         root.setPrefSize(CARD_WIDTH, CARD_HEIGHT);
 
-        String path = "/com/example/p1aloritmos/individuals/cardBack/card_back.png";
+        String path = GameSettings.getCardBackPath(); // <-- ahora lee de GameSettings
         try {
             var is = getClass().getResourceAsStream(path);
             if (is == null) throw new IllegalArgumentException("No back image: " + path);
@@ -195,8 +196,10 @@ public class GameRenderer {
             t.setStyle("-fx-font-size: 28px; -fx-fill: white;");
             root.getChildren().addAll(rect, t);
         }
+
         return root;
     }
+
 
     private void decorateAsSlot(StackPane pane, String text) {
         Rectangle rect = new Rectangle(CARD_WIDTH, CARD_HEIGHT);

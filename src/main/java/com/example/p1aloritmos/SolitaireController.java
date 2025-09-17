@@ -6,6 +6,7 @@ import com.example.p1aloritmos.ui.GameRenderer;
 import com.example.p1aloritmos.ui.TimerManager;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
@@ -19,18 +20,19 @@ import java.util.ResourceBundle;
 
 public class SolitaireController implements Initializable {
 
-    // ---------- UI (inyectado por FXML) ----------
+    // Labels
     @FXML private Label statusLabel;
     @FXML private Label timerLabel;
 
+    // Piles
     @FXML private StackPane drawPilePane;
     @FXML private StackPane wastePilePane;
-
     @FXML private StackPane foundation0;
     @FXML private StackPane foundation1;
     @FXML private StackPane foundation2;
     @FXML private StackPane foundation3;
 
+    // Tableau
     @FXML private VBox tableau0;
     @FXML private VBox tableau1;
     @FXML private VBox tableau2;
@@ -39,16 +41,17 @@ public class SolitaireController implements Initializable {
     @FXML private VBox tableau5;
     @FXML private VBox tableau6;
 
+    // Layout
     @FXML private HBox tableauRow;
     @FXML private BorderPane rootPane;
     @FXML private HBox topBar;
 
-    // Botones con iconos
+    // Buttons
     @FXML private Button undoButton;
     @FXML private Button newGameButton;
     @FXML private Button exitButton;
 
-    // ---------- Estado / helpers ----------
+    // Helpers
     private SolitaireGame game;
     private GameRenderer renderer;
     private TimerManager timerManager;
@@ -57,20 +60,20 @@ public class SolitaireController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // Modelo
+        // Modelo del juego
         game = new SolitaireGame();
 
         // Helpers
-        renderer = new GameRenderer(this, game);                 // <-- aquí dentro se crea DragDropHandler
+        renderer = new GameRenderer(this, game);
         timerManager = new TimerManager(timerLabel);
         buttonManager = new ButtonManager(undoButton, newGameButton, exitButton, this);
         backgroundManager = new BackgroundManager(rootPane, topBar);
 
-        // Estética
+        // Estilos iniciales
         buttonManager.setButtonIcons();
-        backgroundManager.setBackgroundImage("/com/example/p1aloritmos/individuals/background_2.png");
+        backgroundManager.setBackgroundImage();
 
-        // Interacciones simples (clic para robar / recargar)
+        // Click en waste → recargar drawPile
         wastePilePane.setOnMouseClicked(e -> {
             DrawPile draw = game.getDrawPile();
             WastePile waste = game.getWastePile();
@@ -79,17 +82,19 @@ public class SolitaireController implements Initializable {
                 renderer.renderAll();
             }
         });
+
+        // Click en draw → robar cartas
         drawPilePane.setOnMouseClicked(e -> {
             game.drawCards();
             renderer.renderAll();
         });
 
-        // Render inicial
+        // Iniciar render y cronometro
         timerManager.startTimer();
         renderer.renderAll();
     }
 
-    // ---------- Acciones ----------
+    // Accion deshacer movimiento
     @FXML
     private void onUndo() {
         if (game.undoLastMove()) {
@@ -100,34 +105,29 @@ public class SolitaireController implements Initializable {
         }
     }
 
+    // Accion nuevo juego
     @FXML
     private void onNewGame() {
         game = new SolitaireGame();
-        renderer.setGame(game);  // informar al renderer del nuevo modelo
+        renderer.setGame(game);
         timerManager.startTimer();
         renderer.renderAll();
     }
 
+    // Accion salir
     @FXML
     private void onExit() {
         javafx.application.Platform.exit();
     }
 
-    // ---------- Utilidades expuestas para helpers ----------
-    public void setStatus(String s) {
-        if (statusLabel != null) statusLabel.setText(s);
-    }
-
+    // Getters
+    public Parent getRoot() { return rootPane; }
+    public void setStatus(String s) { if (statusLabel != null) statusLabel.setText(s); }
     public Label getTimerLabel() { return timerLabel; }
-
-    public List<VBox> getTableauCols() {
-        return List.of(tableau0, tableau1, tableau2, tableau3, tableau4, tableau5, tableau6);
-    }
-
-    public List<StackPane> getFoundationPanes() {
-        return List.of(foundation0, foundation1, foundation2, foundation3);
-    }
-
+    public List<VBox> getTableauCols() { return List.of(tableau0, tableau1, tableau2, tableau3, tableau4, tableau5, tableau6); }
+    public List<StackPane> getFoundationPanes() { return List.of(foundation0, foundation1, foundation2, foundation3); }
     public StackPane getDrawPilePane() { return drawPilePane; }
     public StackPane getWastePilePane() { return wastePilePane; }
+    public BorderPane getRootPane() { return rootPane; }
+    public HBox getTopBar() { return topBar; }
 }
