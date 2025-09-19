@@ -1,42 +1,47 @@
 package solitaire;
 
 import DeckOfCards.CartaInglesa;
-
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Stack;
 
-/**
- * Tableau (montón de juego) implementado con pila.
- */
 public class TableauDeck {
-    private Stack<CartaInglesa> cartas = new Stack<>();
+    private Pila<CartaInglesa> cartas = new Pila<>(104);
 
     public void inicializar(List<CartaInglesa> cartasIniciales) {
         cartas.clear();
         for (CartaInglesa c : cartasIniciales) cartas.push(c);
-        if (!cartas.isEmpty()) cartas.peek().makeFaceUp();
+        if (!cartas.pila_vacia()) cartas.peek().makeFaceUp();
     }
 
     public List<CartaInglesa> removeStartingAt(int value) {
         List<CartaInglesa> removed = new ArrayList<>();
-        Iterator<CartaInglesa> it = cartas.iterator();
-        while (it.hasNext()) {
-            CartaInglesa next = it.next();
-            if (next.isFaceup() && next.getValor() <= value) {
-                removed.add(next);
-                it.remove();
+        Pila<CartaInglesa> temp = new Pila<>(cartas.getSize());
+
+        while (!cartas.pila_vacia()) {
+            CartaInglesa c = cartas.pop();
+            if (c.isFaceup() && c.getValor() <= value) {
+                removed.add(0, c);
+            } else {
+                temp.push(c);
             }
         }
+        while (!temp.pila_vacia()) cartas.push(temp.pop());
         return removed;
     }
 
     public CartaInglesa viewCardStartingAt(int value) {
-        for (CartaInglesa c : cartas) {
-            if (c.isFaceup() && c.getValor() <= value) return c;
+        Pila<CartaInglesa> temp = new Pila<>(cartas.getSize());
+        CartaInglesa found = null;
+
+        while (!cartas.pila_vacia()) {
+            CartaInglesa c = cartas.pop();
+            if (c.isFaceup() && c.getValor() <= value && found == null) {
+                found = c;
+            }
+            temp.push(c);
         }
-        return null;
+        while (!temp.pila_vacia()) cartas.push(temp.pop());
+        return found;
     }
 
     public boolean agregarCarta(CartaInglesa carta) {
@@ -48,19 +53,25 @@ public class TableauDeck {
         return false;
     }
 
-    public CartaInglesa verUltimaCarta() { return cartas.isEmpty() ? null : cartas.peek(); }
+    public CartaInglesa verUltimaCarta() { return cartas.pila_vacia() ? null : cartas.peek(); }
 
     public CartaInglesa removerUltimaCarta() {
-        CartaInglesa ultima = cartas.isEmpty() ? null : cartas.pop();
-        if (!cartas.isEmpty()) cartas.peek().makeFaceUp();
+        CartaInglesa ultima = cartas.pila_vacia() ? null : cartas.pop();
+        if (!cartas.pila_vacia()) cartas.peek().makeFaceUp();
         return ultima;
     }
 
     @Override
     public String toString() {
-        if (cartas.isEmpty()) return "---";
+        if (cartas.pila_vacia()) return "---";
         StringBuilder b = new StringBuilder();
-        for (CartaInglesa c : cartas) b.append(c.toString());
+        Pila<CartaInglesa> temp = new Pila<>(cartas.getSize());
+        while (!cartas.pila_vacia()) {
+            CartaInglesa c = cartas.pop();
+            b.append(c.toString());
+            temp.push(c);
+        }
+        while (!temp.pila_vacia()) cartas.push(temp.pop());
         return b.toString();
     }
 
@@ -75,20 +86,29 @@ public class TableauDeck {
         return false;
     }
 
-    public boolean isEmpty() { return cartas.isEmpty(); }
+    public boolean isEmpty() { return cartas.pila_vacia(); }
 
     public boolean sePuedeAgregarCarta(CartaInglesa carta) {
-        if (cartas.isEmpty()) return carta.getValor() == 13;
+        if (cartas.pila_vacia()) return carta.getValor() == 13;
         CartaInglesa ultima = cartas.peek();
         return !ultima.getColor().equals(carta.getColor())
                 && ultima.getValor() == carta.getValor() + 1;
     }
 
-    public CartaInglesa getUltimaCarta() { return cartas.isEmpty() ? null : cartas.peek(); }
+    public CartaInglesa getUltimaCarta() { return cartas.pila_vacia() ? null : cartas.peek(); }
 
-    public List<CartaInglesa> getCards() { return new ArrayList<>(cartas); }
+    public List<CartaInglesa> getCards() {
+        List<CartaInglesa> list = new ArrayList<>();
+        Pila<CartaInglesa> temp = new Pila<>(cartas.getSize());
+        while (!cartas.pila_vacia()) {
+            CartaInglesa c = cartas.pop();
+            list.add(0, c);
+            temp.push(c);
+        }
+        while (!temp.pila_vacia()) cartas.push(temp.pop());
+        return list;
+    }
 
-    /** Para Undo: inserta sin validar */
     public void pushBloqueSinValidar(List<CartaInglesa> bloque) {
         for (CartaInglesa c : bloque) cartas.push(c);
     }

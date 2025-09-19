@@ -1,16 +1,11 @@
 package solitaire;
 
 import DeckOfCards.CartaInglesa;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
-/**
- * Montón de descarte (Waste) implementado con una pila.
- */
 public class WastePile {
-    private Stack<CartaInglesa> cartas = new Stack<>();
+    private Pila<CartaInglesa> cartas = new Pila<>(104); // tamaño suficiente
 
     public void addCartas(List<CartaInglesa> nuevas) {
         for (CartaInglesa c : nuevas) cartas.push(c);
@@ -18,21 +13,21 @@ public class WastePile {
 
     public List<CartaInglesa> emptyPile() {
         List<CartaInglesa> pile = new ArrayList<>();
-        while (!cartas.isEmpty()) pile.add(0, cartas.pop());
+        while (!cartas.pila_vacia()) pile.add(0, cartas.pop());
         return pile;
     }
 
-    public CartaInglesa verCarta() { return cartas.isEmpty() ? null : cartas.peek(); }
+    public CartaInglesa verCarta() { return cartas.pila_vacia() ? null : cartas.peek(); }
 
-    public CartaInglesa getCarta() { return cartas.isEmpty() ? null : cartas.pop(); }
+    public CartaInglesa getCarta() { return cartas.pila_vacia() ? null : cartas.pop(); }
 
-    public boolean hayCartas() { return !cartas.isEmpty(); }
+    public boolean hayCartas() { return !cartas.pila_vacia(); }
 
-    public int size() { return cartas.size(); }
+    public int size() { return cartas.getSize(); }
 
     @Override
     public String toString() {
-        if (cartas.isEmpty()) return "---";
+        if (cartas.pila_vacia()) return "---";
         CartaInglesa top = cartas.peek();
         top.makeFaceUp();
         return top.toString();

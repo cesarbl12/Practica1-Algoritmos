@@ -1,13 +1,39 @@
 package solitaire;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
 
+ //Historial de movimientos implementado con la pila personalizada.
 public class MoveHistory {
-    private final Deque<Move> history = new ArrayDeque<>();
+    private final Pila<Move> history;
 
-    public void record(Move move) { history.push(move); }
-    public boolean canUndo() { return !history.isEmpty(); }
-    public void undo() { if (!history.isEmpty()) history.pop().undo(); }
-    public void clear() { history.clear(); }
+    public MoveHistory() {
+        // Asignamos una capacidad inicial amplia, puedes ajustar si lo deseas
+        history = new Pila<>(500);
+    }
+
+    // Registrar un movimiento en el historial
+    public void record(Move move) {
+        history.push(move);
+    }
+
+    // ¿Se puede deshacer un movimiento?
+    public boolean canUndo() {
+        return !history.pila_vacia();
+    }
+
+    // Deshacer el ultimo movimiento registrado
+    public void undo() {
+        if (!history.pila_vacia()) {
+            Move last = history.pop();
+            if (last != null) {
+                last.undo();
+            }
+        }
+    }
+
+    // Vaciar el historial
+    public void clear() {
+        while (!history.pila_vacia()) {
+            history.pop();
+        }
+    }
 }
