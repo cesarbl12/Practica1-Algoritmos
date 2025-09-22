@@ -2,6 +2,7 @@ package solitaire;
 
 import DeckOfCards.CartaInglesa;
 import DeckOfCards.Palo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,13 +28,13 @@ public class SolitaireGame {
         wastePile.addCartas(drawPile.retirarCartas());
     }
 
-    //Recargar Draw desde Waste (acción global, no se registra como movimiento).
+    /** Recargar Draw desde Waste (acciÃ³n global, no se registra como movimiento). */
     public void reloadDrawPile() {
         List<CartaInglesa> cards = wastePile.emptyPile();
         drawPile.recargar(cards);
     }
 
-    // Robar cartas del Draw al Waste
+    /** Robar cartas del Draw al Waste */
     public void drawCards() {
         List<CartaInglesa> cards = drawPile.retirarCartas();
         if (!cards.isEmpty()) {
@@ -42,7 +43,7 @@ public class SolitaireGame {
         }
     }
 
-    // Mover carta del Waste al Tableau
+    /** Mover carta del Waste al Tableau */
     public boolean moveWasteToTableau(int tableauDestino) {
         TableauDeck destino = tableau.get(tableauDestino - 1);
         return moveWasteToTableau(destino);
@@ -55,13 +56,14 @@ public class SolitaireGame {
             carta = wastePile.getCarta();
             List<CartaInglesa> moved = new ArrayList<>();
             moved.add(carta);
+            // No hay flip en fuente (origen = waste)
             history.record(new Move(wastePile, destino, moved));
             movimientoRealizado = true;
         }
         return movimientoRealizado;
     }
 
-    // Mover bloque entre Tableaux
+    /** Mover bloque entre Tableaux */
     public boolean moveTableauToTableau(int tableauFuente, int tableauDestino) {
         boolean movimientoRealizado = false;
         TableauDeck fuente = tableau.get(tableauFuente - 1);
@@ -76,25 +78,31 @@ public class SolitaireGame {
                 valorEsperado = 13; // Rey
             }
 
+            // Determinar carta inicial del bloque a mover
             CartaInglesa cartaInicial = fuente.viewCardStartingAt(valorEsperado);
             if (cartaInicial != null && destino.sePuedeAgregarCarta(cartaInicial)) {
 
-                // Detectar la carta que quedará arriba en la fuente
+                // === Detectar la carta que QUEDARÃ arriba en la fuente tras quitar el bloque ===
+                // SerÃ¡ la carta inmediatamente anterior a 'cartaInicial' en la columna.
                 CartaInglesa flippedAtSourceTop = null;
                 List<CartaInglesa> srcCardsBefore = fuente.getCards();
                 int idx = srcCardsBefore.indexOf(cartaInicial);
                 if (idx > 0) {
                     CartaInglesa candidate = srcCardsBefore.get(idx - 1);
+                    // Si estaba boca abajo, el movimiento la destaparÃ¡; debemos recordarlo para el Undo.
                     if (!candidate.isFaceup()) {
                         flippedAtSourceTop = candidate;
                     }
                 }
 
+                // Remover bloque y colocarlo en destino
                 List<CartaInglesa> bloque = fuente.removeStartingAt(valorEsperado);
                 if (destino.agregarBloqueDeCartas(bloque)) {
+                    // El juego destapa la carta ahora expuesta (si hay)
                     if (!fuente.isEmpty()) {
                         fuente.verUltimaCarta().makeFaceUp();
                     }
+                    // Registrar movimiento, indicando quÃ© carta se destapÃ³ en la fuente (si hubo)
                     history.record(new Move(fuente, destino, bloque, fuente, flippedAtSourceTop));
                     movimientoRealizado = true;
                 }
@@ -103,11 +111,12 @@ public class SolitaireGame {
         return movimientoRealizado;
     }
 
-    // Mover carta de un Tableau a su Foundation
+    /** Mover carta de un Tableau a su Foundation */
     public boolean moveTableauToFoundation(int numero) {
         boolean movimientoRealizado = false;
         TableauDeck fuente = tableau.get(numero - 1);
 
+        // === Detectar si se va a destapar la carta de abajo (segunda desde arriba antes de quitar la Ãºltima) ===
         CartaInglesa flippedAtSourceTop = null;
         List<CartaInglesa> srcCardsBefore = fuente.getCards();
         if (srcCardsBefore.size() >= 2) {
@@ -117,14 +126,16 @@ public class SolitaireGame {
             }
         }
 
-        CartaInglesa carta = fuente.removerUltimaCarta();
+        CartaInglesa carta = fuente.removerUltimaCarta(); // esto destapa la nueva top si existe
         if (carta != null && moveCartaToFoundation(carta)) {
             List<CartaInglesa> moved = new ArrayList<>();
             moved.add(carta);
             history.record(new Move(fuente, lastFoundationUpdated, moved, fuente, flippedAtSourceTop));
             movimientoRealizado = true;
         } else if (carta != null) {
+            // Revertir si no se pudo mover a foundation (y reponer el estado visual)
             fuente.agregarCarta(carta);
+            // Si la carta de abajo se destapÃ³ por remover, hay que volverla a tapar:
             if (flippedAtSourceTop != null) {
                 flippedAtSourceTop.makeFaceDown();
             }
@@ -132,7 +143,7 @@ public class SolitaireGame {
         return movimientoRealizado;
     }
 
-    // Mover carta del Waste a Foundation
+    /** Mover carta del Waste a Foundation */
     public boolean moveWasteToFoundation() {
         boolean movimientoRealizado = false;
         CartaInglesa carta = wastePile.verCarta();
@@ -140,6 +151,7 @@ public class SolitaireGame {
             carta = wastePile.getCarta();
             List<CartaInglesa> moved = new ArrayList<>();
             moved.add(carta);
+            // Origen no es tableau, no hay flip secundario
             history.record(new Move(wastePile, lastFoundationUpdated, moved));
             movimientoRealizado = true;
         }
@@ -158,7 +170,7 @@ public class SolitaireGame {
         return destino.agregarCarta(carta);
     }
 
-    //Juego terminado?
+    /** Â¿Juego terminado? */
     public boolean isGameOver() {
         for (FoundationDeck f : foundation) {
             if (f.estaVacio()) return false;
@@ -188,7 +200,7 @@ public class SolitaireGame {
     public WastePile getWastePile() { return wastePile; }
     public FoundationDeck getLastFoundationUpdated() { return lastFoundationUpdated; }
 
-    // Undo del último movimiento
+    /** Undo del Ãºltimo movimiento */
     public boolean undoLastMove() {
         if (history.canUndo()) {
             history.undo();
