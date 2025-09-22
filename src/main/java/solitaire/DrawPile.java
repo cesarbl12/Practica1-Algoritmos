@@ -5,18 +5,18 @@ import DeckOfCards.Mazo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 /**
- * Mazo de robar (DrawPile) implementado con una pila.
+ * Mazo de robar (DrawPile) implementado con Pila personalizada.
  */
 public class DrawPile {
-    private Stack<CartaInglesa> cartas = new Stack<>();
+    private Pila<CartaInglesa> cartas = new Pila<>();  // ← AQUÍ está el cambio
     private int cuantasCartasSeEntregan = 3;
 
     public DrawPile() {
         Mazo mazo = new Mazo();
-        for (CartaInglesa c : mazo.getCartas()) {
+        List<CartaInglesa> cartasMazo = mazo.getCartas();  // ← También cambié esto
+        for (CartaInglesa c : cartasMazo) {
             cartas.push(c);
         }
         setCuantasCartasSeEntregan(3);
